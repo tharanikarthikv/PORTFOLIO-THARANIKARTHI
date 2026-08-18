@@ -160,6 +160,67 @@
     }
 
     /* =========================================================
+       AURORA BACKGROUND
+       Slow-moving soft light bands, mint/green toned.
+    ========================================================= */
+    .aurora {
+      position: fixed;
+      inset: -10%;
+      z-index: -7;
+      overflow: hidden;
+      pointer-events: none;
+      filter: blur(70px);
+      opacity: 0.55;
+      mix-blend-mode: screen;
+    }
+
+    .aurora-band {
+      position: absolute;
+      width: 140%;
+      height: 45%;
+      left: -20%;
+      border-radius: 50%;
+    }
+
+    .band-one {
+      top: -10%;
+      background: linear-gradient(100deg, transparent, #86efac 35%, #d9f99d 55%, transparent);
+      animation: auroraDrift 26s ease-in-out infinite;
+    }
+
+    .band-two {
+      top: 22%;
+      background: linear-gradient(100deg, transparent, #6ee7b7 30%, #a7f3d0 60%, transparent);
+      animation: auroraDrift 34s ease-in-out infinite reverse;
+      animation-delay: -8s;
+    }
+
+    .band-three {
+      top: 55%;
+      background: linear-gradient(100deg, transparent, #bbf7d0 35%, #5eead4 60%, transparent);
+      animation: auroraDrift 40s ease-in-out infinite;
+      animation-delay: -18s;
+    }
+
+    @keyframes auroraDrift {
+      0%, 100% {
+        transform: translateX(-6%) translateY(0) rotate(0deg) scale(1);
+      }
+      33% {
+        transform: translateX(8%) translateY(4%) rotate(3deg) scale(1.08);
+      }
+      66% {
+        transform: translateX(-4%) translateY(-3%) rotate(-2deg) scale(0.96);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .aurora-band {
+        animation: none;
+      }
+    }
+
+    /* =========================================================
        LOADING SCREEN
     ========================================================= */
     .loader {
@@ -307,6 +368,44 @@
       }
       to {
         transform: translateY(-10vh);
+        opacity: 0;
+      }
+    }
+
+    /* =========================================================
+       FLOATING CODE TOKENS
+       Faint drifting snippets, coder theme accent.
+    ========================================================= */
+    #codeTokens {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .code-token {
+      position: absolute;
+      font-family: monospace;
+      color: rgba(187, 247, 208, 0.16);
+      font-weight: 700;
+      white-space: nowrap;
+      animation: tokenDrift linear infinite;
+    }
+
+    @keyframes tokenDrift {
+      from {
+        transform: translateY(108vh) translateX(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      to {
+        transform: translateY(-12vh) translateX(30px) rotate(6deg);
         opacity: 0;
       }
     }
@@ -1810,10 +1909,16 @@
   ========================================================= -->
   <div class="background-grid" aria-hidden="true"></div>
   <canvas id="matrixRain" aria-hidden="true"></canvas>
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora-band band-one"></span>
+    <span class="aurora-band band-two"></span>
+    <span class="aurora-band band-three"></span>
+  </div>
   <div class="ambient one" aria-hidden="true"></div>
   <div class="ambient two" aria-hidden="true"></div>
   <div class="ambient three" aria-hidden="true"></div>
   <div id="particles" aria-hidden="true"></div>
+  <div id="codeTokens" aria-hidden="true"></div>
   <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
 
   <!-- Scroll progress -->
@@ -2721,6 +2826,47 @@
     }
 
     createParticles();
+
+    /* =========================================================
+       FLOATING CODE TOKENS
+       Faint coder-themed snippets drifting upward.
+    ========================================================= */
+    (function createCodeTokens() {
+      const container = document.getElementById("codeTokens");
+
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+      if (!container || reducedMotion) return;
+
+      const tokens = ["<AI/>", "{ML}", "01", "10", "</>", "[]", "()=>", "if(true)"];
+      const isMobile = window.innerWidth < 600;
+      const count = isMobile ? 8 : 14;
+
+      const fragment = document.createDocumentFragment();
+
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement("span");
+
+        el.className = "code-token";
+        el.textContent = tokens[Math.floor(Math.random() * tokens.length)];
+
+        const left = Math.random() * 100;
+        const delay = Math.random() * -30;
+        const duration = 24 + Math.random() * 26;
+        const size = 0.75 + Math.random() * 0.9;
+
+        el.style.left = `${left}%`;
+        el.style.fontSize = `${size}rem`;
+        el.style.animationDuration = `${duration}s`;
+        el.style.animationDelay = `${delay}s`;
+
+        fragment.appendChild(el);
+      }
+
+      container.appendChild(fragment);
+    })();
 
     /* =========================================================
        SUBTLE HERO MOUSE PARALLAX
